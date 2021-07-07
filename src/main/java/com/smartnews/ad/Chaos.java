@@ -90,6 +90,10 @@ public class Chaos {
         fields.add("ctr");
         fields.add("embedding");
 
+        long successNum = 0;
+        long errorNum = 0;
+        long timeSpent = 0;
+
         while (true) {
             for (int i = 0; i < intervalNum; i++) {
                 List<Key> list = new ArrayList<>();
@@ -100,16 +104,26 @@ public class Chaos {
                     long startTime = System.nanoTime();
                     Map<String, Map<String, byte[]>> stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
                     long elapsedTime = System.nanoTime() - startTime;
+                    timeSpent += elapsedTime;
                     assert stringMapMap.size() == batchSize;
                     log.info("{} Time batch read kkv successfully with time elapse {}", seq, elapsedTime);
+                    successNum++;
                     if (seq >= Long.MAX_VALUE) {
                         log.error("Time to terminate");
                         return;
                     }
                 } catch (Exception e) {
+                    errorNum++;
                     log.error("{} Time batch read kkv failed", seq);
                 }
                 seq++;
+            }
+            if (seq % 10000 == 0) {
+                System.out.println("Time spent for each request is: " + timeSpent / successNum + 1);
+                System.out.println("Error rate in this 10000 request is: " + errorNum / 10000);
+                timeSpent =0;
+                successNum = 0;
+                errorNum = 0;
             }
             sleep(interval);
         }
