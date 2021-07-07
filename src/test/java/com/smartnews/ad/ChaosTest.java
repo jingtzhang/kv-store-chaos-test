@@ -1,6 +1,5 @@
 package com.smartnews.ad;
 
-import com.smartnews.ad.dynamic.Chaos;
 import com.smartnews.ad.dynamic.kvstore.client.KvStoreClient;
 import com.smartnews.ad.dynamic.kvstore.client.SNKVStoreException;
 import lombok.extern.slf4j.Slf4j;

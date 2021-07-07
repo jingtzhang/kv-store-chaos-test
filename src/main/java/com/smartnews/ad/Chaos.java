@@ -1,4 +1,4 @@
-package com.smartnews.ad.dynamic;
+package com.smartnews.ad;
 
 import com.smartnews.ad.dynamic.kvstore.client.Key;
 import com.smartnews.ad.dynamic.kvstore.client.KvStoreClient;
