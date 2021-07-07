@@ -118,9 +118,9 @@ public class Chaos {
                 }
                 seq++;
             }
-            if (seq % 10000 == 0) {
-                System.out.println("Time spent for each request is: " + timeSpent / successNum + 1);
-                System.out.println("Error rate in this 10000 request is: " + errorNum / 10000);
+            if (seq % 1000 == 0) {
+                System.out.println("Time spent for each request is: " + (double)timeSpent / (successNum + 1));
+                System.out.println("Error rate in this 10000 request is: " + errorNum / 1000.);
                 timeSpent =0;
                 successNum = 0;
                 errorNum = 0;
