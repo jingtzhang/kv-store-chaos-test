@@ -76,7 +76,7 @@ public class Chaos {
                 }
                 kkvs.put(new Key("jingtong_test", "item" + j, ""), kvs);
             }
-            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), 100, i != BATCH_NUM - 1);
+            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), 3600, i ==BATCH_NUM - 1);
         }
         log.info("Batch write kkv " + BATCH_SIZE * BATCH_NUM + " finished.");
     }
