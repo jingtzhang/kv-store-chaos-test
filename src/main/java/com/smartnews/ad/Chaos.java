@@ -9,7 +9,11 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.Thread.sleep;
 
@@ -76,7 +80,7 @@ public class Chaos {
                         kvs.put(field, (field + j + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
                     } else {
                         StringBuilder sb = new StringBuilder(field).append(j);
-                        for (int k = 0; k < 20; k++) sb.append(UUID.randomUUID());
+                        for (int k = 0; k < 5; k++) sb.append(UUID.randomUUID());
                         kvs.put(field, sb.toString().getBytes(StandardCharsets.UTF_8));
                     }
                 }
@@ -87,8 +91,10 @@ public class Chaos {
         System.out.println("Batch write kkv " + BATCH_SIZE * BATCH_NUM + " finished.");
     }
 
-    public void keepQuerying(int batchSize, int intervalNum, int interval) throws InterruptedException {
-        long seq = 0;
+    public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
+        ExecutorService executor = new ThreadPoolExecutor(threadNum, 16, 1L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+
+        AtomicLong seq = new AtomicLong();
         Random random = new Random(System.currentTimeMillis());
 
         List<String> fields = new ArrayList<>();
@@ -96,9 +102,9 @@ public class Chaos {
         fields.add("ctr");
         fields.add("embedding");
 
-        long successNum = 0;
-        long errorNum = 0;
-        long timeSpent = 0;
+        AtomicLong successNum = new AtomicLong();
+        AtomicLong errorNum = new AtomicLong();
+//        long timeSpent = 0;
 
         while (true) {
             for (int i = 0; i < intervalNum; i++) {
@@ -106,32 +112,45 @@ public class Chaos {
                 for (int j = 0; j < batchSize; j++) {
                     list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * BATCH_NUM), ""));
                 }
-                try {
-                    long startTime = System.nanoTime();
-                    kvStoreClient.batchReadKKV(list, fields, 100);
-                    long elapsedTime = System.nanoTime() - startTime;
-                    long elapsedTimeConvert = TimeUnit.MILLISECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS);
-                    timeSpent += elapsedTimeConvert;
-//                    System.out.println(seq + " Time batch read kkv successfully with time elapse " + elapsedTime);
-                    successNum++;
-                    if (seq >= Long.MAX_VALUE) {
-                        System.out.println("Time to terminate");
-                        return;
+                executor.submit(() -> {
+                    Map<String, Map<String, byte[]>> stringMapMap = null;
+                    try {
+                        stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
+                        successNum.getAndIncrement();
+                    } catch (SNKVStoreException e) {
+                        errorNum.getAndIncrement();
+                        System.out.println("Batch read kkv failed with " + e.getMessage());
                     }
-                } catch (Exception e) {
-                    errorNum++;
-                    System.out.println(seq + " Time batch read kkv failed with " + e.getMessage());
+                    seq.getAndIncrement();
+                    return stringMapMap;
+                });
+                if (seq.get() % 10000 == 0) {
+                    System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 1000.);
+                    seq.getAndSet(0);
+                    successNum.getAndSet(0);
+                    errorNum.getAndSet(0);
                 }
-                seq++;
+//                try {
+////                    long startTime = System.nanoTime();
+////                    kvStoreClient.batchReadKKV(list, fields, 100);
+////                    long elapsedTime = System.nanoTime() - startTime;
+////                    long elapsedTimeConvert = TimeUnit.MILLISECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS);
+////                    timeSpent += elapsedTimeConvert;
+//                } catch (Exception e) {
+//                    errorNum.getAndIncrement();
+//                    System.out.println(seq + " Time batch read kkv failed with " + e.getMessage());
+//                }
+//                seq++;
             }
-            if (seq % 1000 == 0) {
-                System.out.println("Time spent for each request is: " + (double) timeSpent / (successNum + 1) + " ms.");
-                System.out.println("Error rate in this 10000 request is: " + errorNum / 1000.);
-                timeSpent = 0;
-                successNum = 0;
-                errorNum = 0;
-            }
-            sleep(interval);
+//            if (seq % 1000 == 0) {
+//                System.out.println("Time spent for each request is: " + (double) timeSpent / (successNum.get() + 1) + " ms.");
+//                System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 1000.);
+//                timeSpent = 0;
+//                successNum.set(0);
+//                errorNum.set(0);
+//            }
+            if (interval > 0)
+                sleep(interval);
         }
 
     }

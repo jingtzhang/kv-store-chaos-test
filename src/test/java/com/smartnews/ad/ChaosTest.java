@@ -25,8 +25,8 @@ public class ChaosTest {
     }
 
     @Test
-    public void testLatency() throws InterruptedException {
-        chaos.keepQuerying(200, 100, 5);
+    public void query() throws InterruptedException {
+        chaos.keepQuerying(200, 500, 5, 6);
     }
 
 }
