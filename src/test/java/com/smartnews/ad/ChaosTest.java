@@ -16,7 +16,7 @@ public class ChaosTest {
         KvStoreClient kvStoreClient = new KvStoreClient("jingtong_test",
                 "kv-stg-read-proxy-nlb.dynamic-ads.smartnews.net", 9000,
                 "kv-stg-write-proxy-nlb.dynamic-ads.smartnews.net", 9001);
-        chaos = new Chaos(kvStoreClient);
+        chaos = new Chaos(kvStoreClient, 20);
     }
 
     @Test

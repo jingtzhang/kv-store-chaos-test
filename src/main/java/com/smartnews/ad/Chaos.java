@@ -19,16 +19,19 @@ import static java.lang.Thread.sleep;
 
 
 public class Chaos {
+    private int batchNum;
+
     private static final int BATCH_SIZE = 10000;
 
-    private static final int BATCH_NUM = 10;
+//    private static final int BATCH_NUM = 10;
 
     private static final int RETRY_TIME = 3;
 
     private final KvStoreClient kvStoreClient;
 
-    public Chaos(KvStoreClient kvStoreClient) {
+    public Chaos(KvStoreClient kvStoreClient, int batchNum) {
         this.kvStoreClient = kvStoreClient;
+        this.batchNum = batchNum;
     }
 
     private void retryableBatchWriteKKV(Map<Key, Map<String, byte[]>> kkvs, String pid, int ts, int ttl, boolean last_batch) throws SNKVStoreException {
@@ -64,7 +67,7 @@ public class Chaos {
         fields.add("ctr");
         fields.add("embedding");
 
-        for (int i = 0; i < BATCH_NUM; i++) {
+        for (int i = 0; i < batchNum; i++) {
             // kkvs = {
             // ...
             // class{"jingtong", "item66", ""}: {"cvr": cvr66.toBytes(), "ctr": ctr66.toBytes(), "embedding": embedding66..toBytes()},
@@ -80,15 +83,16 @@ public class Chaos {
                         kvs.put(field, (field + j + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
                     } else {
                         StringBuilder sb = new StringBuilder(field).append(j);
-                        for (int k = 0; k < 5; k++) sb.append(UUID.randomUUID());
+                        int length = new Random(System.currentTimeMillis()).nextInt(4);
+                        for (int k = 0; k < length + 2; k++) sb.append(UUID.randomUUID());
                         kvs.put(field, sb.toString().getBytes(StandardCharsets.UTF_8));
                     }
                 }
                 kkvs.put(new Key("jingtong_test", "item" + j, ""), kvs);
             }
-            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), ttl, i == BATCH_NUM - 1);
+            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), ttl, i == batchNum - 1);
         }
-        System.out.println("Batch write kkv " + BATCH_SIZE * BATCH_NUM + " finished.");
+        System.out.println("Batch write kkv " + BATCH_SIZE * batchNum + " finished.");
     }
 
     public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
@@ -110,7 +114,7 @@ public class Chaos {
             for (int i = 0; i < intervalNum; i++) {
                 List<Key> list = new ArrayList<>();
                 for (int j = 0; j < batchSize; j++) {
-                    list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * BATCH_NUM), ""));
+                    list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * batchNum), ""));
                 }
                 executor.submit(() -> {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
