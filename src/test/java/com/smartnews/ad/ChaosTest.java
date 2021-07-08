@@ -15,7 +15,7 @@ public class ChaosTest {
     public void setUp() throws KvStoreClient.ClientInitializationException {
         KvStoreClient kvStoreClient = new KvStoreClient("jingtong_test",
                 "kv-stg-write-proxy-nlb.dynamic-ads.smartnews.net", 9000,
-                "kv-stg-write-proxy-nlb.dynamic-ads.smartnews.net", 9001);
+                "kv-stg-read-proxy-nlb.dynamic-ads.smartnews.net", 9001);
         chaos = new Chaos(kvStoreClient);
     }
 
