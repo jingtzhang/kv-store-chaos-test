@@ -104,7 +104,15 @@ public class Chaos {
                     Map<String, Map<String, byte[]>> stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
                     long elapsedTime = System.nanoTime() - startTime;
                     timeSpent += elapsedTime;
-                    assert stringMapMap.size() == batchSize;
+//                    assert stringMapMap.size() == batchSize;
+                    for (Map.Entry<String, Map<String, byte[]>> entry: stringMapMap.entrySet()) {
+                        StringBuilder sb = new StringBuilder(entry.getKey()).append(": {");
+                        for (Map.Entry<String, byte[]> subEntry: entry.getValue().entrySet()) {
+                            sb.append(subEntry.getKey()).append(":").append(Arrays.toString(subEntry.getValue())).append(", ");
+                        }
+                        sb.append(" }\n");
+                        System.out.println(sb);
+                    }
                     System.out.println(seq + " Time batch read kkv successfully with time elapse " + elapsedTime);
                     successNum++;
                     if (seq >= Long.MAX_VALUE) {
