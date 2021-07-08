@@ -9,6 +9,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;
 
@@ -101,10 +102,11 @@ public class Chaos {
                 }
                 try {
                     long startTime = System.nanoTime();
-                    Map<String, Map<String, byte[]>> stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
+                    kvStoreClient.batchReadKKV(list, fields, 100);
                     long elapsedTime = System.nanoTime() - startTime;
-                    timeSpent += elapsedTime;
-                    assert stringMapMap.size() == batchSize;
+                    long elapsedTimeConvert = TimeUnit.MILLISECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS);
+                    timeSpent += elapsedTimeConvert;
+//                    assert stringMapMap.size() == batchSize;
 //                    for (Map.Entry<String, Map<String, byte[]>> entry: stringMapMap.entrySet()) {
 //                        StringBuilder sb = new StringBuilder(entry.getKey()).append(": {");
 //                        for (Map.Entry<String, byte[]> subEntry: entry.getValue().entrySet()) {
@@ -113,7 +115,7 @@ public class Chaos {
 //                        sb.append(" }\n");
 //                        System.out.println(sb);
 //                    }
-                    System.out.println(seq + " Time batch read kkv successfully with time elapse " + elapsedTime);
+//                    System.out.println(seq + " Time batch read kkv successfully with time elapse " + elapsedTime);
                     successNum++;
                     if (seq >= Long.MAX_VALUE) {
                         System.out.println("Time to terminate");
@@ -126,7 +128,7 @@ public class Chaos {
                 seq++;
             }
             if (seq % 1000 == 0) {
-                System.out.println("Time spent for each request is: " + (double)timeSpent / (successNum + 1));
+                System.out.println("Time spent for each request is: " + (double)timeSpent / (successNum + 1) + " ms.");
                 System.out.println("Error rate in this 10000 request is: " + errorNum / 1000.);
                 timeSpent =0;
                 successNum = 0;
