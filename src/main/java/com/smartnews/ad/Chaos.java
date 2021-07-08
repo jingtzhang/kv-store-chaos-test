@@ -72,11 +72,17 @@ public class Chaos {
             for (int j = i * BATCH_SIZE; j < (i + 1) * BATCH_SIZE; j++) {
                 Map<String, byte[]> kvs = new HashMap<>();
                 for (String field : fields) {
-                    kvs.put(field, (field + j + System.currentTimeMillis() + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));
+                    if (!field.equals("embedding")) {
+                        kvs.put(field, (field + j + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
+                    } else {
+                        StringBuilder sb = new StringBuilder(field).append(j);
+                        for (int k = 0; k < 20; k++) sb.append(UUID.randomUUID());
+                        kvs.put(field, sb.toString().getBytes(StandardCharsets.UTF_8));
+                    }
                 }
                 kkvs.put(new Key("jingtong_test", "item" + j, ""), kvs);
             }
-            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), ttl, i ==BATCH_NUM - 1);
+            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), ttl, i == BATCH_NUM - 1);
         }
         System.out.println("Batch write kkv " + BATCH_SIZE * BATCH_NUM + " finished.");
     }
@@ -119,9 +125,9 @@ public class Chaos {
                 seq++;
             }
             if (seq % 1000 == 0) {
-                System.out.println("Time spent for each request is: " + (double)timeSpent / (successNum + 1) + " ms.");
+                System.out.println("Time spent for each request is: " + (double) timeSpent / (successNum + 1) + " ms.");
                 System.out.println("Error rate in this 10000 request is: " + errorNum / 1000.);
-                timeSpent =0;
+                timeSpent = 0;
                 successNum = 0;
                 errorNum = 0;
             }
