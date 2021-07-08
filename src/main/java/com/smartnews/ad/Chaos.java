@@ -4,7 +4,6 @@ import com.smartnews.ad.dynamic.kvstore.client.Key;
 import com.smartnews.ad.dynamic.kvstore.client.KvStoreClient;
 import com.smartnews.ad.dynamic.kvstore.client.SNKVStoreException;
 import com.smartnews.ad.dynamic.kvstore.proto.Write;
-import lombok.extern.slf4j.Slf4j;
 
 import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
@@ -13,7 +12,7 @@ import java.util.*;
 
 import static java.lang.Thread.sleep;
 
-@Slf4j
+
 public class Chaos {
     private static final int BATCH_SIZE = 10000;
 
@@ -34,7 +33,7 @@ public class Chaos {
             try {
                 Write.BatchWriteRsp batchWriteRsp = kvStoreClient.batchWriteKKV(kkvs, pid, ts, ttl, last_batch);
                 if (batchWriteRsp.getStatus() == Write.BatchWriteRsp.Status.SUCCESS) {
-                    log.info("Finished upload batch kkv size: " + kkvs.size());
+                    System.out.println("Finished upload batch kkv size: " + kkvs.size());
                     return;
                 } else {
                     throw new SNKVStoreException("Return status is abnormal: " + batchWriteRsp.getStatus());
@@ -42,14 +41,14 @@ public class Chaos {
             } catch (Exception e) {
                 retry--;
                 errMsg = e.getMessage();
-                log.error(errMsg);
-                log.warn("Update kv-store batch kkv failed... Retry " + retry);
+                System.out.println(errMsg);
+                System.out.println("Update kv-store batch kkv failed... Retry " + retry);
             }
         }
         throw new SNKVStoreException("KV-Store update batch kkv error " + errMsg);
     }
 
-    public void batchWriteKkv() throws SNKVStoreException {
+    public void batchWriteKkv(int ttl) throws SNKVStoreException {
         String pid = ManagementFactory.getRuntimeMXBean().getName();
         Date date = new Date();
         long time = date.getTime();
@@ -76,9 +75,9 @@ public class Chaos {
                 }
                 kkvs.put(new Key("jingtong_test", "item" + j, ""), kvs);
             }
-            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), 3600, i ==BATCH_NUM - 1);
+            retryableBatchWriteKKV(kkvs, pid, (int) ts.getTime(), ttl, i ==BATCH_NUM - 1);
         }
-        log.info("Batch write kkv " + BATCH_SIZE * BATCH_NUM + " finished.");
+        System.out.println("Batch write kkv " + BATCH_SIZE * BATCH_NUM + " finished.");
     }
 
     public void keepQuerying(int batchSize, int intervalNum, int interval) throws InterruptedException {
@@ -106,15 +105,15 @@ public class Chaos {
                     long elapsedTime = System.nanoTime() - startTime;
                     timeSpent += elapsedTime;
                     assert stringMapMap.size() == batchSize;
-                    log.info("{} Time batch read kkv successfully with time elapse {}", seq, elapsedTime);
+                    System.out.println(seq + " Time batch read kkv successfully with time elapse " + elapsedTime);
                     successNum++;
                     if (seq >= Long.MAX_VALUE) {
-                        log.error("Time to terminate");
+                        System.out.println("Time to terminate");
                         return;
                     }
                 } catch (Exception e) {
                     errorNum++;
-                    log.error("{} Time batch read kkv failed", seq);
+                    System.out.println(seq + " Time batch read kkv failed with " + e.getMessage());
                 }
                 seq++;
             }

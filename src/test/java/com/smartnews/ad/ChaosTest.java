@@ -21,7 +21,7 @@ public class ChaosTest {
 
     @Test
     public void write() throws SNKVStoreException {
-        chaos.batchWriteKkv();
+        chaos.batchWriteKkv(3600 * 12);
     }
 
     @Test
