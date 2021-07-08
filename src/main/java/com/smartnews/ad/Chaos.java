@@ -72,7 +72,7 @@ public class Chaos {
             for (int j = i * BATCH_SIZE; j < (i + 1) * BATCH_SIZE; j++) {
                 Map<String, byte[]> kvs = new HashMap<>();
                 for (String field : fields) {
-                    kvs.put(field, (field + j).getBytes(StandardCharsets.UTF_8));
+                    kvs.put(field, (field + j + System.currentTimeMillis() + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));
                 }
                 kkvs.put(new Key("jingtong_test", "item" + j, ""), kvs);
             }
@@ -83,7 +83,7 @@ public class Chaos {
 
     public void keepQuerying(int batchSize, int intervalNum, int interval) throws InterruptedException {
         long seq = 0;
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
 
         List<String> fields = new ArrayList<>();
         fields.add("cvr");
@@ -106,15 +106,6 @@ public class Chaos {
                     long elapsedTime = System.nanoTime() - startTime;
                     long elapsedTimeConvert = TimeUnit.MILLISECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS);
                     timeSpent += elapsedTimeConvert;
-//                    assert stringMapMap.size() == batchSize;
-//                    for (Map.Entry<String, Map<String, byte[]>> entry: stringMapMap.entrySet()) {
-//                        StringBuilder sb = new StringBuilder(entry.getKey()).append(": {");
-//                        for (Map.Entry<String, byte[]> subEntry: entry.getValue().entrySet()) {
-//                            sb.append(subEntry.getKey()).append(":").append(Arrays.toString(subEntry.getValue())).append(", ");
-//                        }
-//                        sb.append(" }\n");
-//                        System.out.println(sb);
-//                    }
 //                    System.out.println(seq + " Time batch read kkv successfully with time elapse " + elapsedTime);
                     successNum++;
                     if (seq >= Long.MAX_VALUE) {
