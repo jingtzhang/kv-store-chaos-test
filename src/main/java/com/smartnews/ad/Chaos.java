@@ -19,7 +19,7 @@ import static java.lang.Thread.sleep;
 
 
 public class Chaos {
-    private int batchNum;
+    private final int batchNum;
 
     private static final int BATCH_SIZE = 10000;
 
@@ -56,7 +56,8 @@ public class Chaos {
         throw new SNKVStoreException("KV-Store update batch kkv error " + errMsg);
     }
 
-    public void batchWriteKkv(int ttl) throws SNKVStoreException {
+    public void batchWriteKkv(int ttl, int embeddingSize) throws SNKVStoreException {
+        assert embeddingSize < 6 && embeddingSize >= 0;
         String pid = ManagementFactory.getRuntimeMXBean().getName();
         Date date = new Date();
         long time = date.getTime();
@@ -71,8 +72,8 @@ public class Chaos {
             // kkvs = {
             // ...
             // class{"jingtong", "item66", ""}: {"cvr": cvr66.toBytes(), "ctr": ctr66.toBytes(), "embedding": embedding66..toBytes()},
-            // class{"jingtong", "item66", ""}: {"cvr": cvr66.toBytes(), "ctr": ctr66.toBytes(), "embedding": embedding66..toBytes()}
-            // class{"jingtong", "item66", ""}: {"cvr": cvr66.toBytes(), "ctr": ctr66.toBytes(), "embedding": embedding66..toBytes()}
+            // class{"jingtong", "item67", ""}: {"cvr": cvr67.toBytes(), "ctr": ctr67.toBytes(), "embedding": embedding67..toBytes()}
+            // class{"jingtong", "item68", ""}: {"cvr": cvr68.toBytes(), "ctr": ctr68.toBytes(), "embedding": embedding68..toBytes()}
             // ...
             // }
             Map<Key, Map<String, byte[]>> kkvs = new HashMap<>();
@@ -83,8 +84,7 @@ public class Chaos {
                         kvs.put(field, (field + j + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
                     } else {
                         StringBuilder sb = new StringBuilder(field).append(j);
-                        int length = new Random(System.currentTimeMillis()).nextInt(4);
-                        for (int k = 0; k < length + 2; k++) sb.append(UUID.randomUUID());
+                        for (int k = 0; k < embeddingSize; k++) sb.append(UUID.randomUUID());
                         kvs.put(field, sb.toString().getBytes(StandardCharsets.UTF_8));
                     }
                 }
@@ -96,7 +96,7 @@ public class Chaos {
     }
 
     public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
-        ExecutorService executor = new ThreadPoolExecutor(threadNum, 16, 1L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+        ExecutorService executor = new ThreadPoolExecutor(threadNum, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 
         AtomicLong seq = new AtomicLong();
         Random random = new Random(System.currentTimeMillis());
@@ -126,14 +126,14 @@ public class Chaos {
                         System.out.println("Batch read kkv failed with " + e.getMessage());
                     }
                     seq.getAndIncrement();
+                    if (seq.get() % 10000 == 0) {
+                        System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 1000.);
+                        seq.getAndSet(0);
+                        successNum.getAndSet(0);
+                        errorNum.getAndSet(0);
+                    }
                     return stringMapMap;
                 });
-                if (seq.get() % 10000 == 0) {
-                    System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 1000.);
-                    seq.getAndSet(0);
-                    successNum.getAndSet(0);
-                    errorNum.getAndSet(0);
-                }
 //                try {
 ////                    long startTime = System.nanoTime();
 ////                    kvStoreClient.batchReadKKV(list, fields, 100);
