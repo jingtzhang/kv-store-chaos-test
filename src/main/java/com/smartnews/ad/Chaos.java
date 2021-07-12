@@ -4,6 +4,7 @@ import com.smartnews.ad.dynamic.kvstore.client.Key;
 import com.smartnews.ad.dynamic.kvstore.client.KvStoreClient;
 import com.smartnews.ad.dynamic.kvstore.client.SNKVStoreException;
 import com.smartnews.ad.dynamic.kvstore.proto.Write;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +58,6 @@ public class Chaos {
     }
 
     public void batchWriteKkv(int ttl, int embeddingSize) throws SNKVStoreException {
-        assert embeddingSize < 6 && embeddingSize >= 0;
         String pid = ManagementFactory.getRuntimeMXBean().getName();
         Date date = new Date();
         long time = date.getTime();
@@ -79,13 +79,12 @@ public class Chaos {
             Map<Key, Map<String, byte[]>> kkvs = new HashMap<>();
             for (int j = i * BATCH_SIZE; j < (i + 1) * BATCH_SIZE; j++) {
                 Map<String, byte[]> kvs = new HashMap<>();
+                int size = new Random().nextInt(5);
                 for (String field : fields) {
                     if (!field.equals("embedding")) {
-                        kvs.put(field, (field + j + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
+                        kvs.put(field, (field + RandomStringUtils.random(size+5, true, true)).getBytes(StandardCharsets.UTF_8));
                     } else {
-                        StringBuilder sb = new StringBuilder(field).append(j);
-                        for (int k = 0; k < embeddingSize; k++) sb.append(UUID.randomUUID());
-                        kvs.put(field, sb.toString().getBytes(StandardCharsets.UTF_8));
+                        kvs.put(field, RandomStringUtils.random(embeddingSize, true, true).getBytes(StandardCharsets.UTF_8));
                     }
                 }
                 kkvs.put(new Key("jingtong_test", "item" + j, ""), kvs);
