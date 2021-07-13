@@ -29,4 +29,9 @@ public class ChaosTest {
         chaos.keepQuerying(200, 500, 0, 10);
     }
 
+    @Test
+    public void single() throws SNKVStoreException {
+        chaos.singleReadKKV();
+    }
+
 }

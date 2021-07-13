@@ -91,6 +91,22 @@ public class Chaos {
         System.out.println("Batch write kkv " + BATCH_SIZE * batchNum + " finished.");
     }
 
+    public void singleReadKKV() throws SNKVStoreException {
+        List<String> fields = new ArrayList<>();
+        fields.add("cvr");
+        fields.add("ctr");
+        fields.add("embedding");
+        List<Key> list = new ArrayList<>();
+        list.add(new Key("jingtong_test", "item" + 4477, ""));
+        Map<String, Map<String, byte[]>> stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
+        stringMapMap.forEach((a, b) -> {
+            System.out.println(a);
+            System.out.println(Arrays.toString(b.get("cvr")));
+            System.out.println(Arrays.toString(b.get("ctr")));
+            System.out.println(Arrays.toString(b.get("embedding")));
+        });
+    }
+
     public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
         ExecutorService executor = new ThreadPoolExecutor(threadNum, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
 
