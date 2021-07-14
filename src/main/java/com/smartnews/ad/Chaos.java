@@ -17,12 +17,9 @@ import static java.lang.Thread.sleep;
 
 
 public class Chaos {
-    private final int batchNum;
-
     private static final int BATCH_SIZE = 10000;
-
     private static final int RETRY_TIME = 3;
-
+    private final int batchNum;
     private final KvStoreClient kvStoreClient;
 
     public Chaos(KvStoreClient kvStoreClient, int batchNum) {
@@ -105,20 +102,6 @@ public class Chaos {
         });
     }
 
-    private static class DiscardOldestPolicyImpl implements RejectedExecutionHandler {
-        public DiscardOldestPolicyImpl() { }
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            if (!executor.isShutdown()) {
-                Runnable poll = executor.getQueue().poll();
-                System.out.println("Executor discard oldest task...");
-                executor.execute(r);
-            } else {
-                System.out.println("Executor shutdown...");
-            }
-        }
-    }
-
     public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
         ExecutorService executor = new ThreadPoolExecutor(threadNum, 150, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new DiscardOldestPolicyImpl());
 
@@ -161,6 +144,22 @@ public class Chaos {
             }
             if (interval > 0)
                 sleep(interval);
+        }
+    }
+
+    private static class DiscardOldestPolicyImpl implements RejectedExecutionHandler {
+        public DiscardOldestPolicyImpl() {
+        }
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            if (!executor.isShutdown()) {
+                Runnable poll = executor.getQueue().poll();
+                System.out.println("Executor discard oldest task...");
+                executor.execute(r);
+            } else {
+                System.out.println("Executor shutdown...");
+            }
         }
     }
 }
