@@ -16,7 +16,7 @@ public class ChaosTest {
         KvStoreClient kvStoreClient = new KvStoreClient("jingtong_test",
                 "kv-stg-read-proxy-nlb.dynamic-ads.smartnews.net", 9000,
                 "kv-stg-write-proxy-nlb.dynamic-ads.smartnews.net", 9001);
-        chaos = new Chaos(kvStoreClient, 20);
+        chaos = new Chaos(kvStoreClient, 60);
     }
 
     @Test
@@ -26,7 +26,7 @@ public class ChaosTest {
 
     @Test
     public void query() throws InterruptedException {
-        chaos.keepQuerying(200, 500, 0, 10);
+        chaos.keepQuerying(200, 500, 0, 120);
     }
 
     @Test

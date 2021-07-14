@@ -21,8 +21,6 @@ public class Chaos {
 
     private static final int BATCH_SIZE = 10000;
 
-//    private static final int BATCH_NUM = 10;
-
     private static final int RETRY_TIME = 3;
 
     private final KvStoreClient kvStoreClient;
@@ -79,7 +77,7 @@ public class Chaos {
                 int size = new Random().nextInt(5);
                 for (String field : fields) {
                     if (!field.equals("embedding")) {
-                        kvs.put(field, (field + RandomStringUtils.random(size+5, true, true)).getBytes(StandardCharsets.UTF_8));
+                        kvs.put(field, (field + RandomStringUtils.random(size + 5, true, true)).getBytes(StandardCharsets.UTF_8));
                     } else {
                         kvs.put(field, RandomStringUtils.random(embeddingSize, true, true).getBytes(StandardCharsets.UTF_8));
                     }
@@ -107,8 +105,22 @@ public class Chaos {
         });
     }
 
+    private static class DiscardOldestPolicyImpl implements RejectedExecutionHandler {
+        public DiscardOldestPolicyImpl() { }
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            if (!executor.isShutdown()) {
+                Runnable poll = executor.getQueue().poll();
+                System.out.println("Executor discard oldest task...");
+                executor.execute(r);
+            } else {
+                System.out.println("Executor shutdown...");
+            }
+        }
+    }
+
     public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
-        ExecutorService executor = new ThreadPoolExecutor(threadNum, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
+        ExecutorService executor = new ThreadPoolExecutor(threadNum, 150, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new DiscardOldestPolicyImpl());
 
         AtomicLong seq = new AtomicLong();
         Random random = new Random(System.currentTimeMillis());
@@ -120,7 +132,6 @@ public class Chaos {
 
         AtomicLong successNum = new AtomicLong();
         AtomicLong errorNum = new AtomicLong();
-//        long timeSpent = 0;
 
         while (true) {
             for (int i = 0; i < intervalNum; i++) {
@@ -146,30 +157,10 @@ public class Chaos {
                     }
                     return stringMapMap;
                 });
-                sleep(2);
-//                try {
-////                    long startTime = System.nanoTime();
-////                    kvStoreClient.batchReadKKV(list, fields, 100);
-////                    long elapsedTime = System.nanoTime() - startTime;
-////                    long elapsedTimeConvert = TimeUnit.MILLISECONDS.convert(elapsedTime, TimeUnit.NANOSECONDS);
-////                    timeSpent += elapsedTimeConvert;
-//                } catch (Exception e) {
-//                    errorNum.getAndIncrement();
-//                    System.out.println(seq + " Time batch read kkv failed with " + e.getMessage());
-//                }
-//                seq++;
+                sleep(1);
             }
-//            if (seq % 1000 == 0) {
-//                System.out.println("Time spent for each request is: " + (double) timeSpent / (successNum.get() + 1) + " ms.");
-//                System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 1000.);
-//                timeSpent = 0;
-//                successNum.set(0);
-//                errorNum.set(0);
-//            }
             if (interval > 0)
                 sleep(interval);
         }
-
     }
-
 }
