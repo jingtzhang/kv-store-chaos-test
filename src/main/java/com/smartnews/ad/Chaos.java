@@ -123,22 +123,22 @@ public class Chaos {
                     list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * batchNum), ""));
                 }
                 executor.submit(() -> {
-//                    Map<String, Map<String, byte[]>> stringMapMap = null;
+                    Map<String, Map<String, byte[]>> stringMapMap = null;
                     try {
-                        kvStoreClient.batchReadKKV(list, fields, 100);
+                        stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
+                        stringMapMap = null;
                         successNum.getAndIncrement();
                     } catch (SNKVStoreException e) {
                         errorNum.getAndIncrement();
 //                        System.out.println("Batch read kkv failed with " + e.getMessage());
                     }
                     seq.getAndIncrement();
-                    if (seq.get() % 10000 == 0) {
-                        System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 1000.);
+                    if (seq.get() == 10000) {
+                        System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 10000.);
                         seq.getAndSet(0);
                         successNum.getAndSet(0);
                         errorNum.getAndSet(0);
                     }
-//                    return stringMapMap;
                 });
                 sleep(1);
             }
