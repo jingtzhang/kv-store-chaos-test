@@ -125,8 +125,7 @@ public class Chaos {
                 executor.submit(() -> {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
                     try {
-                        stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
-                        stringMapMap = null;
+                        stringMapMap = kvStoreClient.batchReadKKV(list, fields, 200);
                         successNum.getAndIncrement();
                     } catch (SNKVStoreException e) {
                         errorNum.getAndIncrement();
@@ -139,6 +138,7 @@ public class Chaos {
                         successNum.getAndSet(0);
                         errorNum.getAndSet(0);
                     }
+                    return stringMapMap;
                 });
                 sleep(1);
             }
