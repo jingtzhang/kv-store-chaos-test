@@ -24,7 +24,7 @@ public class ChaosTest {
 
     @Test
     public void query() throws InterruptedException {
-        chaos.keepQuerying(100, 500, 0, 16);
+        chaos.keepQuerying(50, 500, 0, 10);
     }
 
     @Test

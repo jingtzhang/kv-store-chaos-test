@@ -103,7 +103,7 @@ public class Chaos {
     }
 
     public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
-        ExecutorService executor = new ThreadPoolExecutor(threadNum, 30, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new DiscardOldestPolicyImpl());
+        ExecutorService executor = new ThreadPoolExecutor(threadNum, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new DiscardOldestPolicyImpl());
 
         AtomicLong seq = new AtomicLong();
         Random random = new Random(System.currentTimeMillis());
