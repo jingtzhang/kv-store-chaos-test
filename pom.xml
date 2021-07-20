@@ -24,7 +24,7 @@
                         <archive>
                             <manifest>
                                 <addClasspath>true</addClasspath>
-                                <mainClass>com.smartnews.ad.Chaos</mainClass>
+                                <mainClass>com.smartnews.ad.Main</mainClass>
                             </manifest>
                         </archive>
                     </configuration>
@@ -42,7 +42,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.smartnews.ad.Chaos</mainClass>
+                            <mainClass>com.smartnews.ad.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
