@@ -141,7 +141,7 @@ public class Chaos {
                 });
             }
             if (interval > 0)
-                sleep(1000);
+                sleep(interval);
         }
     }
 
