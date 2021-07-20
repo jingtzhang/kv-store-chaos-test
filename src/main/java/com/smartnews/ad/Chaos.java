@@ -103,7 +103,7 @@ public class Chaos {
     }
 
     public void keepQuerying(int batchSize, int intervalNum, int interval, int threadNum) throws InterruptedException {
-        ExecutorService executor = new ThreadPoolExecutor(threadNum, 150, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new DiscardOldestPolicyImpl());
+        ExecutorService executor = new ThreadPoolExecutor(threadNum, 50, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new DiscardOldestPolicyImpl());
 
         AtomicLong seq = new AtomicLong();
         Random random = new Random(System.currentTimeMillis());
@@ -125,11 +125,10 @@ public class Chaos {
                 executor.submit(() -> {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
                     try {
-                        stringMapMap = kvStoreClient.batchReadKKV(list, fields, 200);
+                        stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
                         successNum.getAndIncrement();
                     } catch (SNKVStoreException e) {
                         errorNum.getAndIncrement();
-//                        System.out.println("Batch read kkv failed with " + e.getMessage());
                     }
                     seq.getAndIncrement();
                     if (seq.get() == 10000) {
@@ -140,7 +139,6 @@ public class Chaos {
                     }
                     return stringMapMap;
                 });
-                sleep(1);
             }
             if (interval > 0)
                 sleep(interval);
@@ -154,7 +152,7 @@ public class Chaos {
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
             if (!executor.isShutdown()) {
-                Runnable poll = executor.getQueue().poll();
+                executor.getQueue().poll();
                 System.out.println("Executor discard oldest task...");
                 executor.execute(r);
             } else {
