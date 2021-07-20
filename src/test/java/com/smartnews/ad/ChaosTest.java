@@ -19,12 +19,12 @@ public class ChaosTest {
 
     @Test
     public void write() throws SNKVStoreException {
-        chaos.batchWriteKkv(3600, 100);
+        chaos.batchWriteKkv(36000, 100);
     }
 
     @Test
     public void query() throws InterruptedException {
-        chaos.keepQuerying(50, 500, 200, 4);
+        chaos.keepQuerying(50, 500, 150, 4);
     }
 
     @Test
