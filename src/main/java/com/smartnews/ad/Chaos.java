@@ -122,8 +122,6 @@ public class Chaos {
                 for (int j = 0; j < batchSize; j++) {
                     list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * batchNum), ""));
                 }
-                if (i % 100 == 0)
-                    System.out.println(executor.getActiveCount());
                 executor.submit(() -> {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
                     try {
