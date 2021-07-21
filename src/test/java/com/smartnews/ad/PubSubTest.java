@@ -25,12 +25,12 @@ public class PubSubTest {
     @Before
     public void setUp() {
         List<RedisURI> uris = new ArrayList<RedisURI>(){{
-            add(RedisURI.create("10.1.128.179", 6379));
-            add(RedisURI.create("10.1.129.233", 6379));
-            add(RedisURI.create("10.1.131.181", 6379));
-            add(RedisURI.create("10.1.130.120", 6379));
+            add(RedisURI.create("10.1.131.101", 6379));
             add(RedisURI.create("10.1.129.21", 6379));
             add(RedisURI.create("10.1.131.39", 6379));
+            add(RedisURI.create("10.1.128.179", 6379));
+            add(RedisURI.create("10.1.131.181", 6379));
+            add(RedisURI.create("10.1.129.233", 6379));
         }};
         clusterClient = RedisClusterClient.create(uris);
         connection = clusterClient.connectPubSub();
