@@ -25,7 +25,10 @@ public class PubSubTest {
 
     KubernetesClient k8sClient;
     RedisClusterClient clusterClient;
+    RedisClusterClient asyncClient;
     StatefulRedisClusterPubSubConnection<String, String> connection;
+    StatefulRedisClusterPubSubConnection<String, String> asyncConnection;
+
 
     @Before
     public void setUp() {
@@ -55,7 +58,9 @@ public class PubSubTest {
             add(RedisURI.create("10.1.129.233", 6379));
         }};
         clusterClient = RedisClusterClient.create(uris);
+        asyncClient = RedisClusterClient.create(uris);
         connection = clusterClient.connectPubSub();
+        asyncConnection = asyncClient.connectPubSub();
     }
 
     @Test
@@ -94,8 +99,10 @@ public class PubSubTest {
         RedisPubSubCommands<String, String> sync = connection.sync();
         sync.subscribe("test-channel");
 
-        RedisClusterPubSubAsyncCommands<String, String> async = connection.async();
+//        RedisClusterPubSubAsyncCommands<String, String> async = connection.async();
+        RedisClusterPubSubAsyncCommands<String, String> async = asyncConnection.async();
         while(true) {
+//            async.publish("test-channel", UUID.randomUUID().toString()).get();
             async.publish("test-channel", UUID.randomUUID().toString()).get();
             sleep(2000);
         }
