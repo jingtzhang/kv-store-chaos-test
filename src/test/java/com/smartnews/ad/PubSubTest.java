@@ -17,6 +17,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import static java.lang.Thread.sleep;
 
@@ -58,7 +59,7 @@ public class PubSubTest {
     }
 
     @Test
-    public void test() throws InterruptedException {
+    public void test() throws InterruptedException, ExecutionException {
         connection.addListener(new RedisClusterPubSubListener<String, String>() {
             @Override
             public void message(RedisClusterNode redisClusterNode, String s, String s2) {
@@ -95,7 +96,7 @@ public class PubSubTest {
 
         RedisClusterPubSubAsyncCommands<String, String> async = connection.async();
         while(true) {
-            async.publish("test-channel", UUID.randomUUID().toString());
+            async.publish("test-channel", UUID.randomUUID().toString()).get();
             sleep(2000);
         }
     }
