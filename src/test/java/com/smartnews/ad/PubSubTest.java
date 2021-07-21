@@ -66,6 +66,9 @@ public class PubSubTest {
         });
         RedisPubSubCommands<String, String> sync = connection.sync();
         sync.subscribe("test-channel");
+        while(true) {
+
+        }
     }
 
     @After
