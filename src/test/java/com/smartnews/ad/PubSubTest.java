@@ -93,9 +93,9 @@ public class PubSubTest {
         RedisPubSubCommands<String, String> sync = connection.sync();
         sync.subscribe("test-channel");
 
-//        RedisClusterPubSubAsyncCommands<String, String> async = connection.async();
+        RedisClusterPubSubAsyncCommands<String, String> async = connection.async();
         while(true) {
-//            async.publish("test-channel", UUID.randomUUID().toString());
+            async.publish("test-channel", UUID.randomUUID().toString());
             sleep(2000);
         }
     }
