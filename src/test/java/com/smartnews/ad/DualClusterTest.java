@@ -26,8 +26,8 @@ public class DualClusterTest {
 
     @Test
     public void write() {
-        Map<String, byte[]> mockData = new HashMap<>();
         for (int k = 0; k < 50; k++) {
+            Map<String, byte[]> mockData = new HashMap<>();
             for(int i = 0; i < 2000; i++) {
                 mockData.put("jingtong_test" + (i + k * 2000), UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
             }
