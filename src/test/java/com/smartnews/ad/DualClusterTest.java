@@ -27,9 +27,9 @@ public class DualClusterTest {
     @Test
     public void write() {
         Map<String, byte[]> mockData = new HashMap<>();
-        for (int k = 0; k < 20; k++) {
-            for(int i = 0; i < 5000; i++) {
-                mockData.put("jingtong_test" + (i + k * 5000), UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+        for (int k = 0; k < 50; k++) {
+            for(int i = 0; i < 2000; i++) {
+                mockData.put("jingtong_test" + (i + k * 2000), UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
             }
             try {
                 Proxy.BatchWriteRsp batchWriteRsp = client.batchWrite(mockData, 3600);
@@ -55,7 +55,7 @@ public class DualClusterTest {
             for (int i = 0; i < intervalNum; i++) {
                 List<String> list = new ArrayList<>();
                 for (int j = 0; j < batchSize; j++) {
-                    list.add("jingtong_test" + random.nextInt(200000));
+                    list.add("jingtong_test" + random.nextInt(100000));
                 }
                 executor.submit(() -> {
                     List<byte[]> bytes = null;
