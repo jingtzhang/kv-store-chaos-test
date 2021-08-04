@@ -72,6 +72,7 @@ public class DualClusterTest {
                         successNum.getAndSet(0);
                         errorNum.getAndSet(0);
                     }
+                    assert !bytes.isEmpty();
                     return bytes;
                 });
             }
