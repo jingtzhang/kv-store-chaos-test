@@ -25,13 +25,17 @@ public class DualClusterTest {
     }
 
     @Test
-    public void write() throws SNKVStoreException {
+    public void write() {
         Map<String, byte[]> mockData = new HashMap<>();
         for(int i = 0; i < 100000; i++) {
             mockData.put("jingtong_test" + i, UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
         }
-        Proxy.BatchWriteRsp batchWriteRsp = client.batchWrite(mockData, 200);
-        assert batchWriteRsp.getStatus() == Proxy.BatchWriteRsp.Status.SUCCESS;
+        try {
+            Proxy.BatchWriteRsp batchWriteRsp = client.batchWrite(mockData, 200);
+            assert batchWriteRsp.getStatus() == Proxy.BatchWriteRsp.Status.SUCCESS;
+        } catch (SNKVStoreException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
