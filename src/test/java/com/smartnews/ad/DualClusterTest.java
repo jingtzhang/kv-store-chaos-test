@@ -3,6 +3,7 @@ package com.smartnews.ad;
 import com.smartnews.ad.dynamic.kvstore.client.ProxyKvStoreClient;
 import com.smartnews.ad.dynamic.kvstore.client.SNKVStoreException;
 import com.smartnews.ad.dynamic.kvstore.proto.proxy.Proxy;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,10 +30,10 @@ public class DualClusterTest {
         for (int k = 0; k < 50; k++) {
             Map<String, byte[]> mockData = new HashMap<>();
             for(int i = 0; i < 2000; i++) {
-                mockData.put("jingtong_test" + (i + k * 2000), UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+                mockData.put("jingtong_test" + (i + k * 2000), RandomStringUtils.random(400, true, true).getBytes(StandardCharsets.UTF_8));
             }
             try {
-                Proxy.BatchWriteRsp batchWriteRsp = client.batchWrite(mockData, 3600);
+                Proxy.BatchWriteRsp batchWriteRsp = client.batchWrite(mockData, 3600*12);
                 assert batchWriteRsp.getStatus() == Proxy.BatchWriteRsp.Status.SUCCESS;
             } catch (SNKVStoreException e) {
                 e.printStackTrace();
@@ -43,8 +44,8 @@ public class DualClusterTest {
     @Test
     public void query() throws InterruptedException {
         int intervalNum = 100;
-        int batchSize = 200;
-        int intervalMs = 1000;
+        int batchSize = 50;
+        int intervalMs = 50;
         ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(5000000), new DiscardOldestPolicyImpl());
 
         AtomicLong seq = new AtomicLong();
@@ -60,7 +61,7 @@ public class DualClusterTest {
                 executor.submit(() -> {
                     List<byte[]> bytes = null;
                     try {
-                        bytes = client.batchRead(list, 100);
+                        bytes = client.batchRead(list, 1000);
                         successNum.getAndIncrement();
                     } catch (Exception e) {
                         errorNum.getAndIncrement();
