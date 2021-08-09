@@ -135,7 +135,7 @@ public class DualClusterTest {
     public void readkkv() throws InterruptedException {
         int readKkvBatchSize = 100;
         int intervalNum = 100;
-        int interval = 200;
+        int interval = 150;
         int threadNum = 16;
         int num = 600000;
         ThreadPoolExecutor executor = new ThreadPoolExecutor(threadNum, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(5000000), new DiscardOldestPolicyImpl());
@@ -165,6 +165,18 @@ public class DualClusterTest {
                     } catch (SNKVStoreException e) {
                         errorNum.getAndIncrement();
                     }
+                    if (stringMapMap.size() != readKkvBatchSize) {
+                        System.out.println(stringMapMap.size());
+                        errorNum.getAndIncrement();
+                        return null;
+                    }
+                    boolean isError = false;
+                    for (Map<String, byte[]> innerMap : stringMapMap.values()) {
+                        if (innerMap == null || innerMap.size() != 3 || innerMap.get("cvr") == null || innerMap.get("ctr") == null || innerMap.get("embedding") == null) {
+                            isError = true;
+                        }
+                    }
+                    if (isError) errorNum.getAndIncrement();
                     seq.getAndIncrement();
                     if (seq.get() == 10000) {
                         System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 10000.);
