@@ -26,23 +26,26 @@ public class DualClusterTest {
     }
 
     @Test
-    public void writekv() {
+    public void writekv() throws InterruptedException {
         int writeBatchSize = 2000;
         int writeBatchNum = 50;
         int ttl = 3600*12;
-        for (int k = 0; k < writeBatchNum; k++) {
-            Map<String, byte[]> mockData = new HashMap<>();
-            for(int i = 0; i < writeBatchSize; i++) {
-                mockData.put("jingtong_test" + (i + k * writeBatchSize), RandomStringUtils.random(400, true, true).getBytes(StandardCharsets.UTF_8));
+        while (true) {
+            for (int k = 0; k < writeBatchNum; k++) {
+                Map<String, byte[]> mockData = new HashMap<>();
+                for(int i = 0; i < writeBatchSize; i++) {
+                    mockData.put("jingtong_test" + (i + k * writeBatchSize), RandomStringUtils.random(400, true, true).getBytes(StandardCharsets.UTF_8));
+                }
+                try {
+                    Proxy.BatchWriteRsp batchWriteRsp = client.batchWrite(mockData, ttl);
+                    assert batchWriteRsp.getStatus() == Proxy.BatchWriteRsp.Status.SUCCESS;
+                } catch (SNKVStoreException e) {
+                    e.printStackTrace();
+                }
             }
-            try {
-                Proxy.BatchWriteRsp batchWriteRsp = client.batchWrite(mockData, ttl);
-                assert batchWriteRsp.getStatus() == Proxy.BatchWriteRsp.Status.SUCCESS;
-            } catch (SNKVStoreException e) {
-                e.printStackTrace();
-            }
+            System.out.println("Batch write kv " + writeBatchSize * writeBatchNum + " finished.");
+            sleep(100);
         }
-        System.out.println("Batch write kv " + writeBatchSize * writeBatchNum + " finished.");
     }
 
     @Test
