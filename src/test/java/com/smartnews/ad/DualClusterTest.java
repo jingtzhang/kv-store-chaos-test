@@ -153,16 +153,11 @@ public class DualClusterTest {
 
         while (true) {
             for (int i = 0; i < intervalNum; i++) {
-                List<String> list = new ArrayList<>();
                 Set<String> set = new HashSet<>();
                 for (int j = 0; j < readKkvBatchSize; j++) {
-                    list.add("jingtong_test_kkv_" + "item" + random.nextInt(num));
                     set.add("jingtong_test_kkv_" + "item" + random.nextInt(num));
                 }
-                if (set.size() != readKkvBatchSize) {
-                    System.out.println("set size = " + set.size());
-                    return;
-                }
+                List<String> list = new ArrayList<>(set);
                 executor.submit(() -> {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
                     try {
@@ -171,7 +166,7 @@ public class DualClusterTest {
                     } catch (SNKVStoreException e) {
                         errorNum.getAndIncrement();
                     }
-                    if (stringMapMap.size() != readKkvBatchSize) {
+                    if (stringMapMap.size() != list.size()) {
                         System.out.println(stringMapMap.size());
                         errorNum.getAndIncrement();
                         return null;
