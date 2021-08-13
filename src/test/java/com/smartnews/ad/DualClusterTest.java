@@ -22,7 +22,7 @@ public class DualClusterTest {
 
     @BeforeAll
     static void setUp() throws ProxyKvStoreClient.ProxyClientInitializationException {
-        client = ProxyKvStoreClient.ProxyKvStoreClientBuilder.builder().withRedisProxyHost("kv-i2i-pure-proxy-nlb.dynamic-ads.smartnews.net").withRedisProxyPort(9000).build();
+        client = ProxyKvStoreClient.ProxyKvStoreClientBuilder.builder().withRedisProxyHost("kv-stg-pure-proxy-nlb.dynamic-ads.smartnews.net").withRedisProxyPort(9000).build();
     }
 
     @Test
