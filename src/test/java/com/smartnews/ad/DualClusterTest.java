@@ -49,7 +49,7 @@ public class DualClusterTest {
     public void readkv() throws InterruptedException {
         int intervalNum = 100;
         int batchSize = 100;
-        int intervalMs = 50;
+        int intervalMs = 100;
         ThreadPoolExecutor executor = new ThreadPoolExecutor(16, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(5000000), new DiscardOldestPolicyImpl());
 
         AtomicLong seq = new AtomicLong();
