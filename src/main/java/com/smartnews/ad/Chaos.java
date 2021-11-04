@@ -121,7 +121,7 @@ public class Chaos {
                 List<Key> list = new ArrayList<>();
                 for (int j = 0; j < batchSize; j++) {
 //                    list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * batchNum), ""));
-                    list.add(new Key("jingtong_test", "item" + random.nextInt(100000) + j, ""));
+                    list.add(new Key("jingtong_test", "item" + (random.nextInt(100000) + j), ""));
                 }
                 executor.submit(() -> {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
