@@ -126,7 +126,10 @@ public class Chaos {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
                     try {
                         stringMapMap = kvStoreClient.batchReadKKV(list, fields, 100);
-                        successNum.getAndIncrement();
+                        if (stringMapMap.size() == batchSize)
+                            successNum.getAndIncrement();
+                        else
+                            errorNum.getAndIncrement();
                     } catch (SNKVStoreException e) {
                         errorNum.getAndIncrement();
                     }
