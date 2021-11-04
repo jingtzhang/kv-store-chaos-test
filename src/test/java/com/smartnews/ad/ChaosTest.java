@@ -2,15 +2,15 @@ package com.smartnews.ad;
 
 import com.smartnews.ad.dynamic.kvstore.client.KvStoreClient;
 import com.smartnews.ad.dynamic.kvstore.client.SNKVStoreException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ChaosTest {
 
-    private Chaos chaos;
+    private static Chaos chaos;
 
-    @Before
-    public void setUp() throws KvStoreClient.ClientInitializationException {
+    @BeforeAll
+    public static void setUp() throws KvStoreClient.ClientInitializationException {
         KvStoreClient kvStoreClient = new KvStoreClient("jingtong_test",
                 "kv-stg-read-proxy-nlb.dynamic-ads.smartnews.net", 9000,
                 "kv-stg-write-proxy-nlb.dynamic-ads.smartnews.net", 9001);
