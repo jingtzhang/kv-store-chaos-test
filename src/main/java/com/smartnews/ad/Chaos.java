@@ -120,7 +120,8 @@ public class Chaos {
             for (int i = 0; i < intervalNum; i++) {
                 List<Key> list = new ArrayList<>();
                 for (int j = 0; j < batchSize; j++) {
-                    list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * batchNum), ""));
+//                    list.add(new Key("jingtong_test", "item" + random.nextInt(BATCH_SIZE * batchNum), ""));
+                    list.add(new Key("jingtong_test", "item" + random.nextInt(100000) + j, ""));
                 }
                 executor.submit(() -> {
                     Map<String, Map<String, byte[]>> stringMapMap = null;
@@ -134,8 +135,8 @@ public class Chaos {
                         errorNum.getAndIncrement();
                     }
                     seq.getAndIncrement();
-                    if (seq.get() == 10000) {
-                        System.out.println("Error rate in this 10000 request is: " + errorNum.get() / 10000.);
+                    if (seq.get() == 1000) {
+                        System.out.println("Error rate in this 1000 request is: " + errorNum.get() / 1000.);
                         seq.getAndSet(0);
                         successNum.getAndSet(0);
                         errorNum.getAndSet(0);
